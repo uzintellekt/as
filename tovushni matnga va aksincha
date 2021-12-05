@@ -1,0 +1,285 @@
+package com.my.newprojecttmvam;
+
+import android.app.Activity;
+import android.app.*;
+import android.os.*;
+import android.view.*;
+import android.view.View.*;
+import android.widget.*;
+import android.content.*;
+import android.graphics.*;
+import android.media.*;
+import android.net.*;
+import android.text.*;
+import android.util.*;
+import android.webkit.*;
+import android.animation.*;
+import android.view.animation.*;
+import java.util.*;
+import java.text.*;
+import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.widget.ScrollView;
+import android.widget.Button;
+import android.widget.TextView;
+import android.speech.SpeechRecognizer;
+import android.speech.RecognizerIntent;
+import android.speech.RecognitionListener;
+import android.speech.tts.TextToSpeech;
+import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.Manifest;
+import android.content.pm.PackageManager;
+
+public class MainActivity extends Activity {
+  
+ private String text = "";
+ 
+ private LinearLayout linear6;
+ private LinearLayout linear7;
+ private EditText edittext1;
+ private ScrollView vscroll1;
+ private Button button1;
+ private Button button3;
+ private Button button2;
+ private TextView textview2;
+ private TextView textview3;
+ private ScrollView vscroll4;
+ 
+ private SpeechRecognizer stotext;
+ private TextToSpeech ttosp;
+ @Override
+ protected void onCreate(Bundle _savedInstanceState) {
+  super.onCreate(_savedInstanceState);
+  setContentView(R.layout.main);
+  initialize(_savedInstanceState);
+  if (Build.VERSION.SDK_INT >= 23) {
+   if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+    requestPermissions(new String[] {Manifest.permission.RECORD_AUDIO}, 1000);
+   }
+   else {
+    initializeLogic();
+   }
+  }
+  else {
+   initializeLogic();
+  }
+ }
+ @Override
+ public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+  super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+  if (requestCode == 1000) {
+   initializeLogic();
+  }
+ }
+ 
+ private void initialize(Bundle _savedInstanceState) {
+  
+  linear6 = (LinearLayout) findViewById(R.id.linear6);
+  linear7 = (LinearLayout) findViewById(R.id.linear7);
+  edittext1 = (EditText) findViewById(R.id.edittext1);
+  vscroll1 = (ScrollView) findViewById(R.id.vscroll1);
+  button1 = (Button) findViewById(R.id.button1);
+  button3 = (Button) findViewById(R.id.button3);
+  button2 = (Button) findViewById(R.id.button2);
+  textview2 = (TextView) findViewById(R.id.textview2);
+  textview3 = (TextView) findViewById(R.id.textview3);
+  vscroll4 = (ScrollView) findViewById(R.id.vscroll4);
+  stotext = SpeechRecognizer.createSpeechRecognizer(this);
+  ttosp = new TextToSpeech(getApplicationContext(), null);
+  
+  edittext1.setOnClickListener(new View.OnClickListener() {
+   @Override
+   public void onClick(View _view) {
+    
+   }
+  });
+  
+  edittext1.addTextChangedListener(new TextWatcher() {
+   @Override
+
+
+
+   public void onTextChanged(CharSequence _param1, int _param2, int _param3, int _param4) {
+    final String _charSeq = _param1.toString();
+    
+   }
+   
+   @Override
+   public void beforeTextChanged(CharSequence _param1, int _param2, int _param3, int _param4) {
+    
+   }
+   
+   @Override
+   public void afterTextChanged(Editable _param1) {
+    
+   }
+  });
+  
+  button1.setOnClickListener(new View.OnClickListener() {
+   @Override
+   public void onClick(View _view) {
+    Intent _intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    _intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
+    _intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    _intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+    stotext.startListening(_intent);
+   }
+  });
+  
+  button3.setOnClickListener(new View.OnClickListener() {
+   @Override
+   public void onClick(View _view) {
+    stotext.stopListening();
+    ttosp.stop();
+    
+    t1.stop();
+   }
+  });
+  
+  button2.setOnClickListener(new View.OnClickListener()
+{
+   @Override
+   public void onClick(View _view) {
+    text = edittext1.getText().toString();
+    t1.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null);
+   }
+  });  
+  stotext.setRecognitionListener(new RecognitionListener() {
+   @Override
+   public void onReadyForSpeech(Bundle _param1) {
+   }
+   @Override
+   public void onBeginningOfSpeech() {
+   }
+   @Override
+   public void onRmsChanged(float _param1) {
+   }
+   @Override
+   public void onBufferReceived(byte[] _param1) {
+   }
+   @Override
+   public void onEndOfSpeech() {
+   }
+   @Override
+   public void onPartialResults(Bundle _param1) {
+   }
+   @Override
+   public void onEvent(int _param1, Bundle _param2) {
+   }
+   @Override
+   public void onResults(Bundle _param1) {
+    final ArrayList<String> _results = _param1.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+    final String _result = _results.get(0);
+    edittext1.setText(_result);
+   }
+   
+   @Override
+   public void onError(int _param1) {
+    final String _errorMessage;
+    switch (_param1) {
+     case SpeechRecognizer.ERROR_AUDIO:
+     _errorMessage = "audio error";
+     break;
+     case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+     _errorMessage = "speech timeout";
+     break;
+     case SpeechRecognizer.ERROR_NO_MATCH:
+     _errorMessage = "speech no match";
+     break;
+     case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+     _errorMessage = "recognizer busy";
+     break;
+     case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+     _errorMessage = "recognizer insufficient permissions";
+     break;
+     default:
+     _errorMessage = "recognizer other error";
+     break;
+    }
+    
+   }
+  });
+ }
+ 
+
+
+ private void initializeLogic() {
+  t1=new android.speech.tts.TextToSpeech(getApplicationContext(), new android.speech.tts.TextToSpeech.OnInitListener() {
+   @Override public void onInit(int status) {
+    if(status != android.speech.tts.TextToSpeech.ERROR) {
+     t1.setLanguage(Locale.UK); } } });
+ }android.speech.tts.TextToSpeech t1;
+ private void nothing(){
+ }
+ 
+ @Override
+ protected void onActivityResult(int _requestCode, int _resultCode, Intent _data) {
+  super.onActivityResult(_requestCode, _resultCode, _data);
+  
+  switch (_requestCode) {
+   
+   default:
+   break;
+  }
+ }
+ 
+ @Override
+ public void onPause() {
+  super.onPause();
+  if(t1 !=null){
+   t1.stop();
+   t1.shutdown(); }
+ }
+ @Deprecated
+ public void showMessage(String _s) {
+  Toast.makeText(getApplicationContext(), _s, Toast.LENGTH_SHORT).show();
+ }
+ 
+ @Deprecated
+ public int getLocationX(View _v) {
+  int _location[] = new int[2];
+  _v.getLocationInWindow(_location);
+  return _location[0];
+ }
+ 
+ @Deprecated
+ public int getLocationY(View _v) {
+  int _location[] = new int[2];
+  _v.getLocationInWindow(_location);
+  return _location[1];
+ }
+ 
+ @Deprecated
+ public int getRandom(int _min, int _max) {
+  Random random = new Random();
+  return random.nextInt(_max - _min + 1) + _min;
+ }
+ 
+ @Deprecated
+ public ArrayList<Double> getCheckedItemPositionsToArray(ListView _list) {
+  ArrayList<Double> _result = new ArrayList<Double>();
+  SparseBooleanArray _arr = _list.getCheckedItemPositions();
+  for (int _iIdx = 0; _iIdx < _arr.size(); _iIdx++) {
+   if (_arr.valueAt(_iIdx))
+   _result.add((double)_arr.keyAt(_iIdx));
+  }
+  return _result;
+ }
+ 
+ @Deprecated
+ public float getDip(int _input){
+  return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, _input, getResources().getDisplayMetrics());
+ }
+ 
+ @Deprecated
+ public int getDisplayWidthPixels(){
+  return getResources().getDisplayMetrics().widthPixels;
+ }
+  @Deprecated
+ public int getDisplayHeightPixels(){
+  return getResources().getDisplayMetrics().heightPixels;
+ }
+ 
+}
